@@ -1,4 +1,4 @@
-import pageObjects.register as register
+import pages.register_page as register
 from data.daten import correct_data
 
 
