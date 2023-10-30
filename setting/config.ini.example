@@ -1,0 +1,6 @@
+[PROD]
+domain = https://web.com
+[UAT]
+domain = https://web.uat.com
+[QA]
+domain = https://web.qa.com
