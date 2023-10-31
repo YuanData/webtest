@@ -1,3 +1,5 @@
+import pytest
+
 from data.daten import signup_data
 from pages.register_page import Register
 
@@ -31,3 +33,16 @@ class TestRegister:
         alert_present, alert_message = register.invalid_data_registration(test_data)
         assert alert_present, "Expected alert not present"
         assert alert_message == "密碼與確認密碼不符", f"Expected alert message, got {alert_message}"
+
+    @pytest.mark.parametrize("field, value",
+                             [("email", ""),
+                              ("password_confirmed", ""),
+                              ("name", ""), ])
+    def test_register_field_empty(self, field, value, setup, env):
+        test_data = signup_data.copy()
+        test_data[field] = value
+
+        register = Register(setup, env)
+        alert_present, alert_message = register.invalid_data_registration(test_data)
+        assert alert_present, "Expected alert not present"
+        assert alert_message == "註冊資料有缺", f"Expected alert message, got {alert_message}"
