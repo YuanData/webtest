@@ -1,5 +1,3 @@
-import configparser
-
 from selenium.common.exceptions import NoAlertPresentException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
@@ -9,17 +7,13 @@ from config_manager import ConfigManager
 from locators.register_loc import *
 
 
-def load_domain(env):
-    config = configparser.ConfigParser()
-    config.read('../setting/config.ini')
-    return config[env]['domain']
-
-
 class Register:
     def __init__(self, driver, env):
         config_manager = ConfigManager()
         self.domain = config_manager.get_domain(env)
         self.url_signup = f"{self.domain}/signup.php"
+        self.url_login = f"{self.domain}/login.php"
+
         self.driver = driver
         self.wait = WebDriverWait(self.driver, 10)
         self.driver.get(self.url_signup)
@@ -56,15 +50,21 @@ class Register:
         self.agreement_checkbox.click()
         self.register_submit.click()
 
-    def test_successful_registration(self, data):
+    def attempt_registration(self, data):
         self.fill_form(data)
+        alert_message = None
+        alert_present = False
+
         try:
             self.wait.until(EC.alert_is_present())
             alert = self.driver.switch_to.alert
-            assert alert.text == "請至Email信箱 收驗證信! 謝謝！"
+            alert_message = alert.text
             alert.accept()
+            alert_present = True
         except NoAlertPresentException:
-            assert False, "Expected alert not present"
+            pass
 
-        assert self.driver.current_url == f"{self.domain}/login.php"
-        return any(self.driver.find_elements_by_id('login-submit'))
+        redirection = self.driver.current_url
+        login_present = any(self.driver.find_elements_by_id('login-submit'))
+
+        return alert_present, alert_message, redirection, login_present
